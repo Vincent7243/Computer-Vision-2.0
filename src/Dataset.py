@@ -61,12 +61,12 @@ else:
     with open('data/names.pkl','wb') as f:
         pickle.dump(names.f)
 
-if 'face_data,pkl' not in os.listdir('data/'):
-    with open('data/face_data,pkl','wb') as f:
+if 'faces_data.pkl' not in os.listdir('data/'):
+    with open('data/faces_data.pkl','wb') as f:
         pickle.dump(face_data,f)
 else:
-    with open('data/face_data.pkl','rb') as f:
+    with open('data/faces_data.pkl','rb') as f:
         faces = pickle.load(f)
     faces= np.append(faces, face_data,axis=0)
-    with open('data/face_data,pkl','wb') as f:
+    with open('data/faces_data.pkl','wb') as f:
         pickle.dump(faces,f)

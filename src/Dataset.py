@@ -3,11 +3,39 @@ import numpy as np
 import os 
 import pickle
 
-video = cv2.VideoCapture(0) # 0 = webcam camera
+video = cv2.VideoCapture(0)  # 0 = webcam camera
 facedetect = cv2.CascadeClassifier("src/haarcascade_frontalface_default.xml")
 
 face_data = []
 
-i =0 
+i = 0 
 
 name = input("Nhập tên của bạn:") 
+
+# Tạo và cấu hình cửa sổ
+cv2.namedWindow("frame", cv2.WINDOW_NORMAL)
+cv2.setWindowProperty("frame", cv2.WND_PROP_TOPMOST, 1)
+
+while True:
+    ret, frame = video.read()
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    faces = facedetect.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)
+
+    for (x, y, w, h) in faces:
+        crop_img = frame[y:y + h, x:x + w, :]
+        resized_img = cv2.resize(crop_img, dsize=(50, 50))
+        if len(face_data) <= 100 and i % 10 == 0:
+            cv2.putText(frame, str(len(face_data)), org=(50, 50), 
+                        fontFace=cv2.FONT_HERSHEY_COMPLEX, fontScale=1, 
+                        color=(50, 50, 255), thickness=1)  
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (50, 50, 255), 1)
+
+    cv2.imshow("frame", frame)
+    
+    k = cv2.waitKey(1) & 0xFF  # Đảm bảo mã phím luôn ở dạng 8-bit
+    if k == ord('q'):  # Kiểm tra nếu phím `q` được nhấn
+        print("Đã tắt camera.")
+        break
+
+video.release()
+cv2.destroyAllWindows()

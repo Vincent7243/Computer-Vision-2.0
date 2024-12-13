@@ -30,13 +30,13 @@ while True:
         crop_img = frame[y:y + h, x:x + w]
         crop_img = crop_img[:, :, :3]  # Chỉ giữ kênh RGB
         resized_img = cv2.resize(crop_img, dsize=(50, 50))
-        if len(face_data) <= 100 and i % 10 == 0:
+        if len(face_data) <= 25 and i % 10 == 0:
             face_data.append(resized_img.flatten())
         cv2.rectangle(frame, (x, y), (x + w, y + h), (50, 50, 255), 2)
 
     cv2.imshow("Frame", frame)
     i += 1
-    if len(face_data) == 100:
+    if len(face_data) == 25:
         print("Đã thu thập đủ dữ liệu.")
         break
 
@@ -62,12 +62,12 @@ else:
         pickle.dump(face_data, f)
 
 if not os.path.exists(NAMES_PKL_PATH):
-    names = [name] * 100
+    names = [name] * 25
     with open(NAMES_PKL_PATH, 'wb') as f:
         pickle.dump(names, f)
 else:
     with open(NAMES_PKL_PATH, 'rb') as f:
         old_names = pickle.load(f)
-    names = old_names + [name] * 100
+    names = old_names + [name] * 25
     with open(NAMES_PKL_PATH, 'wb') as f:
         pickle.dump(names, f)

@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import os
 import pickle
+import re  # Dùng để kiểm tra ID bằng regex
 
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 FACES_PKL_PATH = os.path.join(BASE_PATH, "../data/faces_data.pkl")
@@ -10,16 +11,41 @@ HAAR_CASCADE_PATH = os.path.join(BASE_PATH, "haarcascade_frontalface_default.xml
 
 os.makedirs(os.path.dirname(FACES_PKL_PATH), exist_ok=True)
 
+# Kiểm tra ID hợp lệ
+def is_valid_id(input_id):
+    return re.fullmatch(r"\d{4}", input_id) is not None  # ID phải là 4 chữ số
+
+# Đọc danh sách ID từ names.pkl nếu tồn tại
+def load_existing_ids():
+    if os.path.exists(NAMES_PKL_PATH):
+        with open(NAMES_PKL_PATH, 'rb') as f:
+            names = pickle.load(f)
+        existing_ids = [entry.split(":")[0] for entry in names]  # Lấy phần ID từ "ID:Name"
+        return set(existing_ids)  # Trả về tập hợp các ID
+    return set()
+
+# Yêu cầu nhập ID
+existing_ids = load_existing_ids()
+while True:
+    id = input("Nhập ID của bạn (4 chữ số, phải là duy nhất): ")
+    if not is_valid_id(id):
+        print("ID không hợp lệ! Vui lòng nhập lại (phải là 4 chữ số).")
+    elif id in existing_ids:
+        print(f"ID '{id}' đã tồn tại. Vui lòng nhập ID khác.")
+    else:
+        break
+
+# Nhập tên người dùng
+name = input("Nhập tên của bạn: ")
+
+# Tiếp tục phần thu thập dữ liệu khuôn mặt
 video = cv2.VideoCapture(0)
 facedetect = cv2.CascadeClassifier(HAAR_CASCADE_PATH)
 
 face_data = []
 i = 0
 
-id = input("Nhập ID của bạn (phải là duy nhất): ")
-name = input("Nhập tên của bạn: ")
-
-# Thu thập dữ liệu khuôn mặt (giữ nguyên)
+# Thu thập dữ liệu khuôn mặt
 while True:
     ret, frame = video.read()
     if not ret:

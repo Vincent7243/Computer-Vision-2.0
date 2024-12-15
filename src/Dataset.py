@@ -16,8 +16,10 @@ facedetect = cv2.CascadeClassifier(HAAR_CASCADE_PATH)
 face_data = []
 i = 0
 
+id = input("Nhập ID của bạn (phải là duy nhất): ")
 name = input("Nhập tên của bạn: ")
 
+# Thu thập dữ liệu khuôn mặt (giữ nguyên)
 while True:
     ret, frame = video.read()
     if not ret:
@@ -28,7 +30,7 @@ while True:
 
     for (x, y, w, h) in faces:
         crop_img = frame[y:y + h, x:x + w]
-        crop_img = crop_img[:, :, :3]  # Chỉ giữ kênh RGB
+        crop_img = crop_img[:, :, :3]
         resized_img = cv2.resize(crop_img, dsize=(50, 50))
         if len(face_data) <= 25 and i % 10 == 0:
             face_data.append(resized_img.flatten())
@@ -48,6 +50,7 @@ cv2.destroyAllWindows()
 
 face_data = np.array(face_data)
 
+# Lưu dữ liệu khuôn mặt
 if not os.path.exists(FACES_PKL_PATH):
     with open(FACES_PKL_PATH, 'wb') as f:
         pickle.dump(face_data, f)
@@ -61,13 +64,16 @@ else:
     with open(FACES_PKL_PATH, 'wb') as f:
         pickle.dump(face_data, f)
 
+# Lưu ID và tên
+id_name = f"{id}:{name}"  # Kết hợp ID và tên thành một chuỗi
+
 if not os.path.exists(NAMES_PKL_PATH):
-    names = [name] * 25
+    names = [id_name] * 25
     with open(NAMES_PKL_PATH, 'wb') as f:
         pickle.dump(names, f)
 else:
     with open(NAMES_PKL_PATH, 'rb') as f:
         old_names = pickle.load(f)
-    names = old_names + [name] * 25
+    names = old_names + [id_name] * 25
     with open(NAMES_PKL_PATH, 'wb') as f:
         pickle.dump(names, f)
